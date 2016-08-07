@@ -1,0 +1,12 @@
+<!doctype html>
+
+<body>
+    <script>
+        var source = new EventSource('/api/amendements/stream');
+        source.onmessage = function (event) {
+             alert(event.data);
+        };
+    </script>
+</body>
+
+</html>
