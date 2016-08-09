@@ -2,3 +2,5 @@ anpy
 flask
 pathlib
 requests
+peewee
+pika
