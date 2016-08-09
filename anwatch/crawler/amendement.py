@@ -57,8 +57,11 @@ def crawl_amendement_summaries():
 def make_diff_and_download(amendement_summaries):
     LOGGER.debug('make diff with amendement summaries in db')
 
+    ids = [am.id for am in amendement_summaries]
+    last_amendements_by_id = dict((am.id, am) for am in AmendementSummary.get_last(ids))
+
     for current_amendement_summary in amendement_summaries:
-        last_amendement_summary = AmendementSummary.get_last(current_amendement_summary.id)
+        last_amendement_summary = last_amendements_by_id.get(current_amendement_summary.id)
 
         event_type = get_event_type(last_amendement_summary, current_amendement_summary)
 

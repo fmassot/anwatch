@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-from peewee import Model, CharField, DateTimeField, CompositeKey, TextField
+from peewee import Model, CharField, DateTimeField, CompositeKey, TextField, fn
 
 from .db import database
 
@@ -32,10 +32,15 @@ class AmendementSummary(BaseModel):
         primary_key = CompositeKey('id', 'created_at')
 
     @classmethod
-    def get_last(cls, _id):
-        return cls.select().where(AmendementSummary.id == _id) \
-            .order_by(AmendementSummary.created_at.desc()) \
-            .first()
+    def get_last(cls, ids):
+        assert type(ids) == list
+        subquery = AmendementSummary.select(AmendementSummary.id, fn.MAX(AmendementSummary.created_at).alias('max_created_at'))\
+            .where(AmendementSummary.id.in_(ids))\
+            .group_by(AmendementSummary.id).alias('recent_amendement')
+
+        return AmendementSummary.select()\
+            .join(subquery, on=((AmendementSummary.id == subquery.c.id) & (AmendementSummary.created_at == subquery.c.max_created_at)))\
+            .execute()
 
 
 class Amendement(BaseModel):
